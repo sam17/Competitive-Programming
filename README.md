@@ -1,4 +1,6 @@
-Algorithms
+Competitive-Programming
 ==========
 
-This repo stores all my assignments of Algorithms course.
+Repository to store Competitive Programming programs and algorithms implemented as part of them.
+
+compProg - > Visual Studio Project for competitive programming.
