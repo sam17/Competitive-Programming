@@ -8,6 +8,8 @@
 #include <vector>
 #include <string>
 #include <set>
+#include <iostream>
+#include <sstream>
 
 using namespace std;
 
@@ -24,14 +26,9 @@ using namespace std;
 
 const double PI=3.14159265358979323846264338327950288419716939937510582097494459230;
 
-#define SIZE 100001
-
+	
 int main()
 {
-	int n;
-
-
-
 
 	return 0;
 }
