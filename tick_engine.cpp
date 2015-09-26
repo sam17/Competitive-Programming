@@ -79,8 +79,6 @@ int readData()
 		dat.timestamp=stoi(data_tokens[0],&sz);
 		string symbol = data_tokens[1];
 		dat.symbol = symbol;
-		if(i>0 && tickset[i-1].timestamp==dat.timestamp);
-		else indexMap[dat.timestamp]=i;
 	    for(int j=2;j<data_tokens.size();j=j+2)
 		{
 			string name;
@@ -93,18 +91,15 @@ int readData()
 			sum_symbolField[symbol][name]+=value;
 //			time_sum.push_back(sum_symbolField);
 		}
-		/*if(indexMap[dat.timestamp]!=i)
-		{
-			//cout<<"Here"<<i<<endl;
-			time_sum[indexMap[dat.timestamp]]=sum_symbolField;
-		}
-		else
-		{*/
-			time_sum.push_back(sum_symbolField);
+	   
+		time_sum.push_back(sum_symbolField);
+		
+		if(i>0 && tickset[i-1].timestamp==dat.timestamp);
+		else indexMap[dat.timestamp]=i;
 		
 		tickset.push_back(dat);
 	}
-	sum_symbolField.clear();
+	//sum_symbolField.clear();
 	cout<<"tickfile completed"<<endl;
 	return ticklines;
 }
@@ -136,7 +131,13 @@ int findSum(int start_time,int end_time,string symbol,string field_name)
 {
 	int index1 = indexMap[start_time];
 	int index2 = indexMap[end_time];
-	int sum = time_sum[index2][symbol][field_name]-time_sum[index1][symbol][field_name];
+	//cout<<index1<<" "<<index2<<" "<<" "<<time_sum[index2][symbol][field_name]<<endl;
+	int sum;
+	if(index1==0)
+		sum = time_sum[index2][symbol][field_name];
+	else
+		sum = time_sum[index2][symbol][field_name]-time_sum[index1-1][symbol][field_name];
+
 	return sum;
 }
 
@@ -188,7 +189,7 @@ int main()
 	//printData();
 	readQuery();
 	
-	//cout<<symbolField["s1"]["f3"];
+	//cout<<time_sum[4]["s2"]["f2"];
 
 	
 	return 0;
