@@ -94,7 +94,10 @@ int readData()
 	   
 		time_sum.push_back(sum_symbolField);
 		
-		if(i>0 && tickset[i-1].timestamp==dat.timestamp);
+		if(i>0 && tickset[i-1].timestamp==dat.timestamp)
+		{
+			time_sum[indexMap[dat.timestamp]]=sum_symbolField;
+		}
 		else indexMap[dat.timestamp]=i;
 		
 		tickset.push_back(dat);
