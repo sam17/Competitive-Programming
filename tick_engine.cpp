@@ -61,11 +61,44 @@ map <string, map<string,int> > symbolField;
 map <string, map<string,int> > sum_symbolField;
 vector <  map <string, map<string,int> > > time_sum; 
 
+std::istream& safeGetline(std::istream& is, std::string& t)
+{
+    t.clear();
+
+    // The characters in the stream are read one-by-one using a std::streambuf.
+    // That is faster than reading them one-by-one using the std::istream.
+    // Code that uses streambuf this way must be guarded by a sentry object.
+    // The sentry object performs various tasks,
+    // such as thread synchronization and updating the stream state.
+
+    std::istream::sentry se(is, true);
+    std::streambuf* sb = is.rdbuf();
+
+    for(;;) {
+        int c = sb->sbumpc();
+        switch (c) {
+        case '\n':
+            return is;
+        case '\r':
+            if(sb->sgetc() == '\n')
+                sb->sbumpc();
+            return is;
+        case EOF:
+            // Also handle the case when the last line has no line ending
+            if(t.empty())
+                is.setstate(std::ios::eofbit);
+            return is;
+        default:
+            t += (char)c;
+        }
+    }
+}
+
 int readData()
 {
    	string s;
 	vector<string> first_tokens;
-	std::getline (std::cin,s);
+	safeGetline (std::cin,s);
 	Tokenize(s,first_tokens);
     string::size_type sz;
 	int ticklines = std::stoi (first_tokens[1],&sz);
@@ -74,7 +107,7 @@ int readData()
 	{
 		tick dat;
 		vector<string> data_tokens;
-		getline(std::cin,s);
+		safeGetline(std::cin,s);
 		Tokenize(s,data_tokens);
 		dat.timestamp=stoi(data_tokens[0],&sz);
 		string symbol = data_tokens[1];
@@ -121,34 +154,46 @@ void printData()
 	}
 }
 
-int findMax(int start_time,int end_time,string symbol,string field_name,int k)
+void printMax(int start_time,int end_time,string symbol,string field_name,int k)
 {
 	int max=0;
-	
+	vector<int> l;
 
 //	cout<<start_time<<" "<<end_time<<" "<<symbol<<" "<<field_name<<" "<<k<<endl;
-	return max;
+	REP(i,k)
+		cout<<0<<" ";
+	cout<<endl;
 }
-
+//Assuming that every time stamp will have only one value of a field name
 int findSum(int start_time,int end_time,string symbol,string field_name)
 {
-	int index1 = indexMap[start_time];
-	int index2 = indexMap[end_time];
+	std::map<int,int>::iterator it1 = indexMap.lower_bound(start_time);
+	int index1,index2;
+	if(indexMap.find(start_time)!=indexMap.end())
+		index1 = it1->second;
+	else index1=it1->second;
+	std::map<int,int>::iterator it2 = indexMap.lower_bound(end_time);
+	if(indexMap.find(end_time)!=indexMap.end())
+		index2 = it2->second;
+	else index2=it2->second-1;
+	
+	//index2 = it2->second;
 	//cout<<index1<<" "<<index2<<" "<<" "<<time_sum[index2][symbol][field_name]<<endl;
 	int sum;
 	if(index1==0)
 		sum = time_sum[index2][symbol][field_name];
 	else
 		sum = time_sum[index2][symbol][field_name]-time_sum[index1-1][symbol][field_name];
-
 	return sum;
 }
 
-void findSOP(int start_time,int end_time,string symbol,string field_name_one,string field_name_two)
+int findSOP(int start_time,int end_time,string symbol,string field_name_one,string field_name_two)
 {
-
+	int sum=0;
 
 	
+
+	return sum;
 }
 
 void readQuery()
@@ -157,7 +202,7 @@ void readQuery()
 	{
 		string s;
 		vector<string> query_tokens;
-		getline (std::cin,s);
+		safeGetline (std::cin,s);
 		Tokenize(s,query_tokens);
 		string::size_type sz;
 		int start_time=stoi(query_tokens[1],&sz);
@@ -174,11 +219,11 @@ void readQuery()
 
 		switch(query_id)
 		{
-		case 0: cout<<findMax(start_time,end_time,symbol,query_tokens[4],stoi(query_tokens[5],&sz));
+		case 0: printMax(start_time,end_time,symbol,query_tokens[4],stoi(query_tokens[2],&sz));
 			break;
 		case 1: cout<<findSum(start_time,end_time,symbol,query_tokens[4])<<endl;
 			break;
-		case 2: //cout<<findSOP(start_time,end_time,symbol,query_tokens[4],query_tokens[5]);
+		case 2: cout<<findSOP(start_time,end_time,symbol,query_tokens[4],query_tokens[5]);
 			break;
 			
 		}
@@ -192,7 +237,7 @@ int main()
 	//printData();
 	readQuery();
 	
-	//cout<<time_sum[4]["s2"]["f2"];
+	//cout<<time_sum[indexMap[1274]]["s2"]["f3"];
 
 	
 	return 0;
