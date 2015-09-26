@@ -94,6 +94,9 @@ std::istream& safeGetline(std::istream& is, std::string& t)
     }
 }
 
+map < string,map <string, map<int,int> > > number_counter;
+vector< map < string,map <string, map<int,int> > > > time_counter;
+
 int readData()
 {
    	string s;
@@ -121,15 +124,18 @@ int readData()
 			value = stoi(data_tokens[j+1],&sz);
 			dat.field_value.push_back(value);
 			symbolField[symbol][name]=value;
+			number_counter[symbol][name][value]++;
 			sum_symbolField[symbol][name]+=value;
 //			time_sum.push_back(sum_symbolField);
 		}
 	   
 		time_sum.push_back(sum_symbolField);
+		time_counter.push_back(number_counter);
 		
 		if(i>0 && tickset[i-1].timestamp==dat.timestamp)
 		{
 			time_sum[indexMap[dat.timestamp]]=sum_symbolField;
+			time_counter[indexMap[dat.timestamp]]=number_counter;
 		}
 		else indexMap[dat.timestamp]=i;
 		
@@ -153,15 +159,47 @@ void printData()
 		cout<<endl;
 	}
 }
-
+map<int,int> subtractMaps(map<int,int> a,map<int,int> b)
+{
+	map<int,int> diff;
+	for(map<int,int>::iterator it=a.begin();it!=a.end();++it)
+	{
+		if(a.find(it->first)!=a.end() && (a[it->first]-b[it->first])>0)
+			diff[it->first]=a[it->first]-b[it->first];
+	}
+	return diff;	
+}
 void printMax(int start_time,int end_time,string symbol,string field_name,int k)
 {
-	int max=0;
-	vector<int> l;
+	std::map<int,int>::iterator it1 = indexMap.lower_bound(start_time);
+	int index1,index2;
+	if(indexMap.find(start_time)!=indexMap.end())
+		index1 = it1->second;
+	else index1=it1->second;
+	std::map<int,int>::iterator it2 = indexMap.lower_bound(end_time);
+	if(indexMap.find(end_time)!=indexMap.end())
+		index2 = it2->second;
+	else index2=it2->second-1;
 
-//	cout<<start_time<<" "<<end_time<<" "<<symbol<<" "<<field_name<<" "<<k<<endl;
-	REP(i,k)
-		cout<<0<<" ";
+	map<int,int> ans;
+	if(index1==0)
+		ans = time_counter[index2][symbol][field_name];
+	else
+	{
+		map <int,int> a = time_counter[index2][symbol][field_name];
+		map <int,int> b = time_counter[index1-1][symbol][field_name];
+		ans = subtractMaps(a,b);
+	}
+	int i=0;
+	//cout<<k<<endl;
+	for(std::map<int,int>::reverse_iterator rit=ans.rbegin();i<k && rit!=ans.rend();i++,rit++)
+	{
+		REP(j,rit->second)
+		{
+			cout<<rit->first<<" ";
+			if(j>1) i++;
+		}
+	}
 	cout<<endl;
 }
 //Assuming that every time stamp will have only one value of a field name
@@ -198,8 +236,10 @@ int findSOP(int start_time,int end_time,string symbol,string field_name_one,stri
 
 void readQuery()
 {
-	while(!cin.eof())
+	int n;
+	while(scanf("%d",&n)!=EOF)
 	{
+		//cout<<"here";
 		string s;
 		vector<string> query_tokens;
 		safeGetline (std::cin,s);
@@ -214,17 +254,20 @@ void readQuery()
 			query_id=0;
 		else if(query_tokens[0]=="sum")
 			query_id=1;
-		else if(query_tokens[1]=="product")
+		else if(query_tokens[0]=="product")
 			query_id=2;
+		else if(query_tokens[0]=="delta")
+				query_id=3;
 
 		switch(query_id)
 		{
-		case 0: printMax(start_time,end_time,symbol,query_tokens[4],stoi(query_tokens[2],&sz));
+		case 0: printMax(start_time,end_time,symbol,query_tokens[4],stoi(query_tokens[5],&sz));
 			break;
 		case 1: cout<<findSum(start_time,end_time,symbol,query_tokens[4])<<endl;
 			break;
-		case 2: cout<<findSOP(start_time,end_time,symbol,query_tokens[4],query_tokens[5]);
+		case 2: cout<<findSOP(start_time,end_time,symbol,query_tokens[4],query_tokens[5])<<endl;
 			break;
+		case 3: cout<<0<<endl;
 			
 		}
 	}	
@@ -236,7 +279,11 @@ int main()
 	readData();
 	//printData();
 	readQuery();
+	//map<int,int> a = time_counter[indexMap[1015]]["s2"]["f3"];
 	
+	//map<int,int> b = time_counter[indexMap[1010]]["s2"]["f3"];
+	//map<int,int> diff = subtractMaps(a,b);;
+	//cout<<a.rbegin()->first;
 	//cout<<time_sum[indexMap[1274]]["s2"]["f3"];
 
 	
