@@ -1,6 +1,5 @@
 
 #Competitive-Programming
-==========
 
 Repository to store Competitive Programming programs and algorithms implemented as part of them.  
 
