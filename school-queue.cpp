@@ -1,4 +1,3 @@
-
 #include <cstdio>
 #include <cstdlib>
 #include <algorithm>
@@ -27,19 +26,27 @@ using namespace std;
 
 const double PI=3.14159265358979323846264338327950288419716939937510582097494459230;
 
-long long int myPow(long long int x, long long int p)
-{
-  if (p == 0) return 1;
-  if (p == 1) return x;
-
-  long long int tmp = myPow(x, p/2);
-  if (p%2 == 0) return tmp * tmp;
-  else return x * tmp * tmp;
-}
-
-char digits[] = {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9' };
-
+	
 int main()
 {
+	int n,t;
+	scanf("%d %d",&n,&t);
+	string s,d;
+	cin>>s;
+	d=s;
+	REP(j,t)
+	{
+		REP(i,s.length())
+		{
+			if(s[i+1]=='G' && s[i]=='B')
+			{
+				d[i]='G';
+				d[i+1]='B';
+					
+			}
+		}
+		s=d;
+	}
+	cout<<s;
 	return 0;
 }
